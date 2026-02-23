@@ -4,14 +4,21 @@ Main branch for my RISC-V implementations, currently focused on RV32IM single-cy
 
 ## Repository files
 
+<<<<<<< HEAD
 - `Makefile`: top-level build/run helper.
 - `EE20B012_BTP_Thesis.pdf`: project/BTP report.
 - `README.md`: project documentation.
 - `RV32IM_single_cycle codes/`: organized single-cycle project (RTL + testbench + memory init files).
+=======
+- RTL and testbench code for RV32IM designs
+- A top-level `Makefile` to build and run simulations
+
+>>>>>>> 644a0ec44e0d1911af061e44ce9b6bb9ce8a7772
 
 ## RV32IM Single-Cycle Project Structure
 
 ```text
+<<<<<<< HEAD
 RV32IM_single_cycle codes/
 |-- rtl/
 |   |-- core/
@@ -56,6 +63,17 @@ RV32IM_single_cycle codes/
 |   |-- tb_ImmGen.v
 |   |-- tb_pccntr.v
 |   |-- tb_rsltMux.v
+=======
+RISC-V/
+|-- single_cycle/
+|   |-- *.v
+|-- pipeline/
+|   |-- *.v
+|-- assets/
+|   |-- report_images/
+|-- Makefile
+|-- README.md
+>>>>>>> 644a0ec44e0d1911af061e44ce9b6bb9ce8a7772
 ```
 
 ## File-by-File Description
