@@ -1,70 +1,149 @@
 # RISC-V
 
-This is the main branch for my RISC-V RV32IM work.  
-It is meant to keep both implementations in one place:
-- `single_cycle` design
-- `pipeline` design
+Main branch for my RISC-V implementations, currently focused on RV32IM single-cycle.
 
-## What this repository contains
+## Repository files
 
-- RTL and testbench code for RV32IM designs
-- A top-level `Makefile` to build and run simulations
-- My BTP report: `EE20B012_BTP_Thesis.pdf`
+- `Makefile`: top-level build/run helper.
+- `EE20B012_BTP_Thesis.pdf`: project/BTP report.
+- `README.md`: project documentation.
+- `RV32IM_single_cycle codes/`: organized single-cycle project (RTL + testbench + memory init files).
 
-## Recommended folder structure
+## RV32IM Single-Cycle Project Structure
 
 ```text
-RISC-V/
-|-- single_cycle/
-|   |-- *.v
-|-- pipeline/
-|   |-- *.v
-|-- assets/
-|   |-- report_images/
-|-- EE20B012_BTP_Thesis.pdf
-|-- Makefile
-|-- README.md
+RV32IM_single_cycle codes/
+|-- rtl/
+|   |-- core/
+|   |   |-- rv32im.v
+|   |-- ifu/
+|   |   |-- InstructionMemry_withWrite.v
+|   |-- id/
+|   |   |-- ControlUnit.v
+|   |   |-- GPRs.v
+|   |   |-- ImmGen.v
+|   |-- ex/
+|   |   |-- alu_rv32im.v
+|   |   |-- aluUnit.v
+|   |   |-- branchSignal.v
+|   |   |-- branchType.v
+|   |   |-- rsltMux.v
+|   |-- mext/
+|   |   |-- MExtension.v
+|   |   |-- mul.v
+|   |   |-- Div.v
+|   |   |-- Array_MUL_USign.v
+|   |-- mem/
+|   |   |-- dataMemory.v
+|   |-- pc/
+|   |   |-- pcCntr.v
+|   |-- mem_init/
+|       |-- program.mem
+|       |-- data.mem
+|       |-- regs.mem
+|       |-- division.mem
+|       |-- division_im.mem
+|       |-- Mextension.mem
+|-- testbench/
+|   |-- tb_rv32im.v
+|   |-- tb_aluUnit.v
+|   |-- tb_brchType.v
+|   |-- tb_ControlUnit.v
+|   |-- tb_dataMemory.v
+|   |-- tb_Datapath_with_Uart.v
+|   |-- tb_dataPath.v
+|   |-- tb_GPRs.v
+|   |-- tb_ImmGen.v
+|   |-- tb_pccntr.v
+|   |-- tb_rsltMux.v
 ```
 
-## How to use the Makefile
+## File-by-File Description
 
-Run from repository root:
+### Top-level core
+
+- `rtl/core/rv32im.v`: top module of the RV32IM single-cycle CPU; instantiates IFU, control, register file, ALU/M-extension path, data memory, PC control, and write-back mux.
+
+### IFU (Instruction Fetch Unit)
+
+- `rtl/ifu/InstructionMemry_withWrite.v`: instruction memory with read path and optional byte-write support.
+
+### ID (Instruction Decode)
+
+- `rtl/id/ControlUnit.v`: instruction decode + control signal generation for RV32I and RV32M operations.
+- `rtl/id/GPRs.v`: 32x32 register file with read/write ports and initialization from `rtl/mem_init/regs.mem`.
+- `rtl/id/ImmGen.v`: immediate generator for I/S/B/U/J formats.
+
+### EX (Execute)
+
+- `rtl/ex/aluUnit.v`: base RV32I ALU operations and compare flags.
+- `rtl/ex/alu_rv32im.v`: wrapper selecting between RV32I ALU result and M-extension result.
+- `rtl/ex/branchType.v`: decodes branch control condition from opcode/funct fields.
+- `rtl/ex/branchSignal.v`: evaluates branch decision using compare flags.
+- `rtl/ex/rsltMux.v`: write-back result mux (ALU/load/PC+4/AUIPC/LUI).
+
+### M Extension
+
+- `rtl/mext/MExtension.v`: RV32M block combining multiplier and divider outputs.
+- `rtl/mext/mul.v`: signed/unsigned multiply logic.
+- `rtl/mext/Div.v`: divide/remainder logic.
+- `rtl/mext/Array_MUL_USign.v`: unsigned array multiplier used by `mul.v`.
+
+### MEM Stage
+
+- `rtl/mem/dataMemory.v`: load/store data memory with byte/halfword/word and signed/unsigned load handling.
+
+### PC Logic
+
+- `rtl/pc/pcCntr.v`: program counter update logic for sequential, branch, JAL, and JALR flows.
+
+### Memory Initialization Files
+
+- `rtl/mem_init/program.mem`: instruction/program image.
+- `rtl/mem_init/data.mem`: initial data memory image.
+- `rtl/mem_init/regs.mem`: initial register file image.
+- `rtl/mem_init/division.mem`: division-related program/data image.
+- `rtl/mem_init/division_im.mem`: instruction memory image used by current IFU setup.
+- `rtl/mem_init/Mextension.mem`: M-extension related memory image.
+
+### Testbenches
+
+- `testbench/tb_rv32im.v`: top-level RV32IM integration testbench.
+- `testbench/tb_aluUnit.v`: ALU unit testbench.
+- `testbench/tb_brchType.v`: branch type decode testbench.
+- `testbench/tb_ControlUnit.v`: control unit testbench.
+- `testbench/tb_dataMemory.v`: data memory testbench.
+- `testbench/tb_Datapath_with_Uart.v`: datapath/UART-oriented testbench.
+- `testbench/tb_dataPath.v`: datapath testbench variant.
+- `testbench/tb_GPRs.v`: register file testbench.
+- `testbench/tb_ImmGen.v`: immediate generator testbench.
+- `testbench/tb_pccntr.v`: program counter control testbench.
+- `testbench/tb_rsltMux.v`: write-back mux testbench.
+
+## Build/Run Commands
+
+From repository root:
 
 ```bash
 make help
 ```
 
-Main targets:
+For this current folder name (with spaces), use quotes:
 
 ```bash
-make run-single              # compile + run single-cycle design
-make run-pipe                # compile + run pipelined design
-make test-single TB=tb_top   # run single-cycle testbench
-make test-pipe TB=tb_top     # run pipeline testbench
-make extract-report-images   # extract images from report PDF
-make clean                   # remove build outputs
-make clean-images            # remove extracted report images
+make run-single SINGLE_DIR="RV32IM_single_cycle codes/rtl" TB=tb_rv32im
 ```
 
-## Useful overrides
-
-If your directory or testbench names are different, override at run time:
+If needed:
 
 ```bash
-make run-single SINGLE_DIR=rv32im_single TB=tb_single
-make run-pipe PIPE_DIR=rv32im_pipe TB=tb_pipe
+make run-single SINGLE_DIR="RV32IM_single_cycle codes/rtl" TB=tb_rv32im SIM=iverilog VVP=vvp
 ```
 
-Tool overrides:
+## Report Image Extraction
 
 ```bash
-make run-single SIM=iverilog VVP=vvp
+make extract-report-images
 ```
 
-## Report image extraction
-
-`make extract-report-images` reads `EE20B012_BTP_Thesis.pdf` and writes images to:
-
-`assets/report_images/`
-
-It uses `pdfimages` (Poppler) if available, otherwise `mutool`.
+Extracts images from `EE20B012_BTP_Thesis.pdf` into `assets/report_images/`.
