@@ -9,7 +9,7 @@ It is meant to keep both implementations in one place:
 
 - RTL and testbench code for RV32IM designs
 - A top-level `Makefile` to build and run simulations
-- My BTP report: `EE20B012_BTP_Thesis.pdf`
+
 
 ## Recommended folder structure
 
@@ -21,7 +21,6 @@ RISC-V/
 |   |-- *.v
 |-- assets/
 |   |-- report_images/
-|-- EE20B012_BTP_Thesis.pdf
 |-- Makefile
 |-- README.md
 ```
